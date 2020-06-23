@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-deployment
+  namespace: dept-1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      name: sample-java-app
+      labels:
+        creation_method: deployment
+        env: prod
+        app: java-app
+    spec:
+      containers:
+      - name: sample-java-app
+        image: gurupatra/sample-app:v1
+        resources:
+          requests:
+            cpu: 200m
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        envFrom:
+          - configMapRef:
+              name: sample-app-config
+        livenessProbe:
+          initialDelaySeconds: 60
+          periodSeconds: 5
+          httpGet:
+            path: /healthCheck
+            port: 8080
+        readinessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          httpGet:
+            path: /healthCheck
+            port: 8080
